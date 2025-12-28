@@ -6,3 +6,5 @@
 notes.txt
 __pycache__/*
 .python_version
+/env
+*.pyc

@@ -1,5 +1,4 @@
 import psycopg2
-import os
 from psycopg2.extras import RealDictCursor
 
 class DBManager:
@@ -18,11 +17,19 @@ class DBManager:
 				host = host,
 				port = port)
 			self.cur =  self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+			print("Connected to PostgreSQL successfully.")
+			self.cur.execute("SELECT version();")
+			version = self.cur.fetchone()
+			print("PostgreSQL version: ", version[0])
+
+			self.cur.execute("SELECT current_database();")
+			print("Connected to database:", self.cur.fetchone()[0])
 
 			self.create_test_methods_table()
 			self.create_roles_table()
 			self.create_employees_table()
 			self.create_employee_roles_table()
+			self.create_submissions_table()
 
 		except psycopg2.Error as e:
 			print(f"There was an error conencting to PostgreSQL: {e}")
@@ -35,9 +42,9 @@ class DBManager:
 	def create_test_methods_table(self):
 		self.cur.execute(''' 
 				   CREATE TABLE IF NOT EXISTS test_methods (
-				   id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+				   test_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 				   test_number varchar(10) NOT NULL UNIQUE,
-				   test_name varchar(50) NOT NULL,
+				   test_name varchar(100) NOT NULL,
 				   main_component varchar(40) NOT NULL);
 				   ''')
 		self.conn.commit()
@@ -46,8 +53,9 @@ class DBManager:
 		self.cur.execute('''
 				CREATE TABLE IF NOT EXISTS employees (
 				   employee_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-				   employee_name TEXT NOT NULL,
-				   employee_email TEXT NOT NULL UNIQUE);
+				   first_name VARCHAR(20) NOT NULL,
+				   last_name VARCHAR(20) NOT NULL,
+				   email VARCHAR(40) NOT NULL UNIQUE);
 				''')
 		self.conn.commit()
 	
@@ -67,12 +75,27 @@ class DBManager:
 				PRIMARY KEY (employee_id, role_id));
 			''')
 		self.conn.commit()
+
+	def create_submissions_table(self):
+		self.cur.execute('''
+			CREATE TABLE IF NOT EXISTS submissions (
+				submission_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+				submitter_id VARCHAR(20) NOT NULL,
+				submitter_first_name VARCHAR(20) NOT NULL,
+				submitter_last_name VARCHAR(20) NOT NULL,
+				labware_number VARCHAR(20) NOT NULL,
+				lot_number VARCHAR(20) NOT NULL,
+				num_lenses INT NOT NULL,
+				location VARCHAR(20) NOT NULL,
+				comments TEXT);
+			''')
+		self.conn.commit()
 	
 	def insert_employee_table(self, name, email, role):
 		self.cur.execute(f'''
-			INSERT INTO employees (employee_name, employee_email) 
+			INSERT INTO employees (first_name, last_name, email) 
 			VALUES (%s, %s)
-			ON CONFLICT (employee_email) DO NOTHING
+			ON CONFLICT (email) DO NOTHING
 			RETURNING employee_id; 
 			''', (name, email)
 			)
@@ -115,29 +138,35 @@ class DBManager:
 			ON CONFLICT DO NOTHING;
 			''', (num, name, component))
 		self.conn.commit()
-
+	
+	def insert_submissions_table(self, submitter_name, labware_num, lot_num, tests, num_lenses, location, comments):
+		name = submitter_name.split(" ")
+		first_name = name[0]
+		last_name = name[1]
+		
+		 
 	def get_all_analyst_names(self):
 		self.cur.execute('''
-			SELECT e.employee_name
+			SELECT e.first_name, e.last_name
 			FROM employees e
 			JOIN employee_roles er ON e.employee_id = er.employee_id
 			JOIN roles r ON er.role_id = r.role_id
 			WHERE r.role_name = %s
-			ORDER BY e.employee_name ASC;
+			ORDER BY e.last_name ASC;
 			''', ('analyst',))
-		analyst_names = [name['employee_name'] for name in self.cur.fetchall()]
+		analyst_names = [name['first_name'] + ' ' + name['last_name'] for name in self.cur.fetchall()]
 		return analyst_names
 
 	def get_all_submitter_names(self):
 		self.cur.execute('''
-			SELECT e.employee_name
+			SELECT e.first_name, e.last_name
 			FROM employees e
 			JOIN employee_roles er ON e.employee_id = er.employee_id
 			JOIN roles r ON er.role_id = r.role_id
 			WHERE r.role_name = %s
-			ORDER BY e.employee_name ASC;
+			ORDER BY e.last_name ASC;
 			''', ('submitter',))
-		return [name['employee_name'] for name in self.cur.fetchall()]
+		return [name['first_name'] + ' ' + name['last_name'] for name in self.cur.fetchall()]
 	
 	def get_all_test_methods(self):
 		self.cur.execute('''

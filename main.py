@@ -7,13 +7,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 if __name__ == "__main__":
-	db_name = os.getenv("DB_NAME")
-	db_user = os.getenv("DB_USER")
-	db_password = os.getenv("DB_PASSWORD")
-	db_host = os.getenv("DB_HOST")
-	db_port = os.getenv("DB_PORT")
 
-	db = DBManager(db_name, db_user, db_password, db_host, db_port)
+	db = DBManager(os.getenv("DB_NAME"), 
+				os.getenv("DB_USER"), 
+				os.getenv("DB_PASSWORD"), 
+				os.getenv("DB_HOST"), 
+				os.getenv("DB_PORT"))
 
 	app = LabManagerGUI(db)
 	app.run()
