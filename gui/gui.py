@@ -1,5 +1,5 @@
 import tkinter as tk
-
+from utils.utils import Submission
 class LabManagerGUI:
 	def __init__(self, database) -> None:
 		self.root = tk.Tk()
@@ -120,6 +120,7 @@ class LabManagerGUI:
 			print('Tests:', tests)
 			print('Number of Lenses:', num_lenses)
 			print('Comments:', comments)
+			self.db.create_submission(self)
 	
 	def cancel(self) -> None:
 		#TODO ask the user if they are sure they want to quit. yes->close, no-> go back to main window.

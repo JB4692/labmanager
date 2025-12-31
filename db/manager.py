@@ -1,6 +1,6 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
-
+from utils.utils import Submission
 class DBManager:
 	def __init__(self, 
 			  dbname, 
@@ -90,7 +90,7 @@ class DBManager:
 				comments TEXT);
 			''')
 		self.conn.commit()
-	
+
 	def insert_employee_table(self, name, email, role):
 		self.cur.execute(f'''
 			INSERT INTO employees (first_name, last_name, email) 
@@ -143,8 +143,13 @@ class DBManager:
 		name = submitter_name.split(" ")
 		first_name = name[0]
 		last_name = name[1]
+
+		self.cur.execute('''SELECT e.id FROM employees e WHERE first_name = %s AND last_name = %s;'''
+				   (first_name, last_name,))
 		
-		 
+		self.cur.fetchall("")
+
+
 	def get_all_analyst_names(self):
 		self.cur.execute('''
 			SELECT e.first_name, e.last_name
