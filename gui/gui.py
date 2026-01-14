@@ -1,5 +1,6 @@
 import tkinter as tk
 from utils.utils import Submission
+
 class LabManagerGUI:
 	def __init__(self, database) -> None:
 		self.root = tk.Tk()
@@ -7,14 +8,13 @@ class LabManagerGUI:
 	
 		self.root.title("Lab Manager")
 		entry_width = 10
-		submitter_names = self.get_submitter_names() #TODO change back to submitters/fix submitter retrieval
-		analyst_names = self.get_analyst_names()
+		user_names = self.get_users_names()
 
 		# VARIABLES
-		self.submitter_var = tk.StringVar(value=self.get_submitter_names()[0])
+		self.submitter_var = tk.StringVar(value=self.get_users_names()[0])
 		self.labware_num_var = tk.StringVar()
 		self.lot_num_var = tk.StringVar()
-		self.analyst_var = tk.StringVar(value=self.get_analyst_names()[0])
+		self.analyst_var = tk.StringVar(value=self.get_users_names()[0])
 		self.tests_var = tk.StringVar()
 		self.num_lenses_var = tk.IntVar()
 		self.location_var = tk.StringVar(value='KOCG')
@@ -39,7 +39,7 @@ class LabManagerGUI:
 		# Submitter
 		submitter_label = tk.Label(self.root, text="Submitter:")
 		submitter_label.grid(row=0, column=0, padx=5, pady=5, sticky='w')
-		self.submitter_menu = tk.OptionMenu(self.root, self.submitter_var, *submitter_names)
+		self.submitter_menu = tk.OptionMenu(self.root, self.submitter_var, *user_names)
 		self.submitter_menu.grid(row=0, column=1, padx=5, pady=5, sticky='w')
 		
 		# Labware Number
@@ -99,7 +99,7 @@ class LabManagerGUI:
 		
 		self.root.config(menu=self.menu_bar)
 
-	def submit(self) -> None:
+	def submit(self):
 		#TODO commit the data to the db
 		submitter = self.submitter_var.get()
 		labware_num = self.labware_num_var.get()
@@ -120,27 +120,27 @@ class LabManagerGUI:
 			print('Tests:', tests)
 			print('Number of Lenses:', num_lenses)
 			print('Comments:', comments)
-			self.db.create_submission(self)
+		
+		# self.db.create_submission(self, Submission)
 	
-	def cancel(self) -> None:
+	def cancel(self):
 		#TODO ask the user if they are sure they want to quit. yes->close, no-> go back to main window.
 		self.root.destroy()
 	
-	def get_submitter_names(self) -> list[str]:
-		return self.db.get_all_submitter_names()
-
-	def get_analyst_names(self) -> list[str]:
-		return self.db.get_all_analyst_names()
+	def get_users_names(self) -> list[str]:
+		# return ['testname']
+		return self.db.get_users_names()
 
 	def get_test_methods(self) -> list[str]:
-		return self.db.get_all_test_methods()
+		# return ['test1']
+		return self.db.get_tests()
 	
-	def get_selected_tests(self) -> None:
+	def get_selected_tests(self):
 		selected_indicies = self.tests_listbox.curselection()
 		selected_tests = [self.tests_listbox.get(i) for i in selected_indicies]
 		return selected_tests
 
-	def add_new_employee_roles(self) -> None:
+	def add_new_employee_roles(self):
 		def commit_analyst(name, email, role):
 			self.db.insert_employee_table(name, email, role)
 		
@@ -174,12 +174,17 @@ class LabManagerGUI:
 
 		btn_frame = tk.Frame(new_window)
 		btn_frame.grid(row=5, column=0, columnspan=2)
-		self.submit_btn = tk.Button(btn_frame, text="Add Analyst", command=lambda: commit_analyst(first_name_var.get(), last_name_var.get(), email_var.get(), role_var.get()))
+		self.submit_btn = tk.Button(btn_frame, 
+							  		text="Add Analyst", 
+									command=lambda: commit_analyst(
+										first_name_var.get(), 
+										last_name_var.get(), 
+										email_var.get()))
 		self.submit_btn.pack(side="left", padx=5)
 		self.cancel_btn = tk.Button(btn_frame, text="Cancel", command=new_window.destroy)
 		self.cancel_btn.pack(side="left", padx=5)
 	
-	def add_test(self) -> None:
+	def add_test(self):
 		def commit_test(test_number, test_name, main_component):
 			self.db.insert_test_method_table(test_number, test_name, main_component)
 		
@@ -208,27 +213,32 @@ class LabManagerGUI:
 
 		btn_frame = tk.Frame(new_window)
 		btn_frame.grid(row=4, column=0, columnspan=2, pady=0)
-		self.submit_btn = tk.Button(btn_frame, text="Add Test", command=lambda: commit_test(test_num_var.get(), test_name_var.get(), component_var.get()))
+		self.submit_btn = tk.Button(btn_frame, 
+							  text="Add Test", 
+							  command=lambda: commit_test(
+								  test_num_var.get(), 
+								  test_name_var.get(), 
+								  component_var.get()))
 		self.submit_btn.pack(side="left", padx=5, pady=5)
 		self.cancel_btn = tk.Button(btn_frame, text="Cancel", command=new_window.destroy)
 		self.cancel_btn.pack(side="left", padx=5, pady=5)
 	
-	def add_submitter(self) -> None:
+	def add_submitter(self):
 		pass
 	
-	def remove_analyst(self) -> None:
+	def remove_analyst(self):
 		pass
 	
-	def remove_submitter(self) -> None:
+	def remove_submitter(self):
 		pass
 
-	def remove_test(self, test_num) -> None:
-		self.db.remove_test(test_num)
+	def remove_test(self, test):
+		self.db.remove_test(test)
 	
 	def run(self) -> None:
 		self.root.mainloop()
 	
-	def prompt_box(self, msg: str) -> None:
+	def prompt_box(self, msg: str):
 		def pressed_ok(root):
 			root.destroy()
 

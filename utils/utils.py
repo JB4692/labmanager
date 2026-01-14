@@ -1,10 +1,16 @@
-class Submission:
-    def __init__(self, id, fname, lname, lw_num, lot_num, num_lens, location, comments):
-        self.id = id
-        self.fname = fname
-        self.lname =lname
-        self.lw_num =lw_num
-        self.lot_num=lot_num
-        self.num_lens=num_lens
-        self.location=location
-        self.comments=comments
+from pydantic import BaseModel, EmailStr
+
+class Submission(BaseModel):
+    id: int
+    lw_num: int
+    lot_num: str
+    num_lens: int 
+    location: str 
+    comments: str | None
+    submitter_id: int
+    submitter_fname: str
+    submitter_lname:str
+    submitter_email: EmailStr
+
+def create_submission_from_json(data):
+    return Submission(**data)
