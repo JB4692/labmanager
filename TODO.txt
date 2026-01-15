@@ -1,8 +1,8 @@
 MUST HAVES:
+    make the create/remove analyst/test
     make the submissions save in the database
     make a submission class & builder (? :o)
     adjust the gui margins a bit
-    fix the create analyst, test and remove analyst, test 
     add a way to query for submissions by certain attributes
 
 Nice to have:
