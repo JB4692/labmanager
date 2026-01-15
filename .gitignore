@@ -2,9 +2,9 @@
 .AppleDouble
 .LSOverride
 
-/env
+/.venv
 notes.txt
 __pycache__/*
 .python_version
-/.env
+.env
 *.pyc

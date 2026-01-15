@@ -1,5 +1,4 @@
 import tkinter as tk
-from utils.utils import Submission
 
 class LabManagerGUI:
 	def __init__(self, database) -> None:
