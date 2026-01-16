@@ -1,7 +1,7 @@
 import tkinter as tk
 import os
 from gui.gui import LabManagerGUI
-from db.manager import DBManager	
+from db.manager import DBManager
 from dotenv import load_dotenv
 
 load_dotenv()

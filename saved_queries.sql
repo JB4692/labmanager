@@ -27,3 +27,10 @@ FROM tests
 INNER JOIN testcomponents ON tests.test_id = testcomponents.test_id
 INNER JOIN components ON components.component_id = testcomponents.component_id
 WHERE test_number = 'TM-0001';
+
+ALTER TABLE testcomponents
+DROP CONSTRAINT testcomponents_test_id_fkey,
+ADD CONSTRAINT testcomponents_test_id_fkey
+FOREIGN KEY (test_id)
+REFERENCES tests(test_id)
+ON DELETE CASCADE;
