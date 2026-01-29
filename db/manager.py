@@ -110,7 +110,7 @@ class DBManager:
             SELECT first_name, last_name
             FROM users;
         ''')
-        names: dict = self.cursor.fetchall()
+        names = self.cursor.fetchall()
         return [name['first_name'] + ' ' + name['last_name'] for name in names]
 
     def get_tests(self) -> list[str]:
@@ -119,7 +119,7 @@ class DBManager:
             FROM tests
             ORDER BY test_number ASC;
         ''')
-        tests: dict = self.cursor.fetchall()
+        tests = self.cursor.fetchall()
         return [test['test_number'] for test in tests]
 
     def get_components(self) -> list[str]:
@@ -128,7 +128,7 @@ class DBManager:
             FROM components
             ORDER BY component_name ASC;
         ''')
-        components: dict = self.cursor.fetchall()
+        components = self.cursor.fetchall()
         return [component['component_name'] for component in components]
 
     def insert_users_table(self, fname: str, lname: str, email: str) -> (bool, str):
